@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 
+	resourceapi "k8s.io/api/resource/v1beta1"
 	"sigs.k8s.io/dra-example-driver/pkg/consts"
 
 	cdiapi "tags.cncf.io/container-device-interface/pkg/cdi"
@@ -83,7 +84,7 @@ func (cdi *CDIHandler) CreateCommonSpecFile() error {
 	return cdi.cache.WriteSpec(spec, specName)
 }
 
-func (cdi *CDIHandler) CreateClaimSpecFile(claimUID string, devices PreparedDevices) error {
+func (cdi *CDIHandler) CreateClaimSpecFile(claimUID string, devices PreparedDevices, claim *resourceapi.ResourceClaim) error {
 	specName := cdiapi.GenerateTransientSpecName(cdiVendor, cdiClass, claimUID)
 
 	spec := &cdispec.Spec{
@@ -114,6 +115,10 @@ func (cdi *CDIHandler) CreateClaimSpecFile(claimUID string, devices PreparedDevi
 		return fmt.Errorf("failed to get minimum required CDI spec version: %v", err)
 	}
 	spec.Version = minVersion
+
+	if *claim.Spec.Devices.Requests[0].AdminAccess {
+		return nil
+	}
 
 	return cdi.cache.WriteSpec(spec, specName)
 }
