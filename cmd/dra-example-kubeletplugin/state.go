@@ -130,8 +130,11 @@ func (s *DeviceState) Prepare(claim *resourceapi.ResourceClaim) ([]*drapbv1.Devi
 		return nil, fmt.Errorf("prepare failed: %v", err)
 	}
 
-	if err = s.cdi.CreateClaimSpecFile(claimUID, preparedDevices); err != nil {
-		return nil, fmt.Errorf("unable to create CDI spec file for claim: %v", err)
+	if *claim.Spec.Devices.Requests[0].AdminAccess != true {
+		// admin access bypass this step
+		if err = s.cdi.CreateClaimSpecFile(claimUID, preparedDevices); err != nil {
+			return nil, fmt.Errorf("unable to create CDI spec file for claim: %v", err)
+		}
 	}
 
 	preparedClaims[claimUID] = preparedDevices
