@@ -116,10 +116,6 @@ func (cdi *CDIHandler) CreateClaimSpecFile(claimUID string, devices PreparedDevi
 	}
 	spec.Version = minVersion
 
-	if *claim.Spec.Devices.Requests[0].AdminAccess {
-		return nil
-	}
-
 	return cdi.cache.WriteSpec(spec, specName)
 }
 
